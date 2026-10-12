@@ -1,0 +1,8 @@
+Copyright (c) 2012, Cody "CodeMan38" Boisclair (cody@zone38.net),
+with Reserved Font Name "Press Start 2P"
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+(SIL Open Font License 1.1 — full text at https://scripts.sil.org/OFL)
