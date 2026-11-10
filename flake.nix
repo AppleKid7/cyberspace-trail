@@ -11,6 +11,16 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;
+        # This machine uses the baseline x64 build; preserve other platforms.
+        bun =
+          if system != "x86_64-linux" || lib.versionAtLeast pkgs.bun.version "1.4.4" then pkgs.bun
+          else pkgs.bun.overrideAttrs (_: {
+            version = "1.4.4";
+            src = pkgs.fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64-baseline.zip";
+              hash = "sha256-4ERutVmVdy65iUvrrppr42jZhai5Jx7hJEhvmUbu3XY=";
+            };
+          });
 
         bunLock = ./bun.lock;
         packageJson = ./package.json;
@@ -19,7 +29,7 @@
           pname = "cyberspace-trail-node-modules";
           version = "0.1.0";
           src = ./.;
-          nativeBuildInputs = [ pkgs.bun ];
+          nativeBuildInputs = [ bun ];
           dontConfigure = true;
           buildPhase = ''
             export HOME=$TMPDIR
@@ -42,14 +52,14 @@
           pname = "cyberspace-trail";
           version = "0.1.0";
           src = ./.;
-          nativeBuildInputs = [ pkgs.bun pkgs.zip pkgs.nodejs ];
+          nativeBuildInputs = [ bun pkgs.zip ];
           buildPhase = ''
             rm -rf node_modules dist
             cp -R ${nodeModules}/node_modules node_modules
             chmod -R u+w node_modules
             export TMPDIR="$TMPDIR/vite-cache"
             mkdir -p "$TMPDIR"
-            ${pkgs.nodejs}/bin/node node_modules/vite/bin/vite.js build
+            bun node_modules/vite/bin/vite.js build
             (cd dist && ${pkgs.zip}/bin/zip -r "$PWD/../cyberspace-trail-itch.zip" .)
           '';
           installPhase = ''
@@ -69,8 +79,6 @@
           buildInputs = with pkgs; [
             bun
             zip
-            nodejs
-            typescript
           ];
           shellHook = ''
             echo "Cyberspace Trail dev shell"
